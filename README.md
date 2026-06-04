@@ -41,6 +41,6 @@ Este projeto é uma aplicação web interativa de Jogo da Memória desenvolvida 
 
 ## Como Executar
 
-1. `git clone https://github.com/gabriellyleitedev/group-today-memory-game`
+1. `git clone https://github.com/gabriellyleitedev/memory-game-mailing`
 2. `npm install`
 3. `npm run dev`
