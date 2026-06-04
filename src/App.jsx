@@ -14,7 +14,7 @@ function App() {
   // Estado que guarda os dados coletados no formulário
   const [userData, setUserData] = useState(null);
 
-  // Funçaõ chamada quando o formulário é enviado ocm sucesso
+  // Função chamada quando o formulário é enviado com sucesso
   const handleStartGame = (data) => {
     setUserData(data); // Guarda os dados do formulário (caso queira usar depois)
     setScreen("playing"); // Muda para a tela do jogo
@@ -47,7 +47,7 @@ function App() {
 
       {/* 3 - Exibe a tela de resultado final */}
       {screen === "result" && (
-        <GameResult result={gameResult} onReset={handleResetGame} />
+        <GameResult result={gameResult} onRestart={handleResetGame} />
       )}
 
     </div>

@@ -47,7 +47,7 @@ export default function GameBoard({ onEndGame }) {
             isMatched: false, // estado de combinação (começa como não acertada)
         }));
 
-        // 3 - ALGORITMO MATEÁTICO FISHER-YATES: Embaralha o array de cartas de forma aleatória na raça
+        // 3 - ALGORITMO MATEMÁTICO FISHER-YATES: Embaralha o array de cartas de forma aleatória na raça
         for (let i = cardObjects.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1)); // Escolhe uma posição aleatória
 
@@ -63,6 +63,85 @@ export default function GameBoard({ onEndGame }) {
         initializeGame();
     }, []);
 
+    // === LÓGICA DO CLIQUE NA CARTA ===
+    const handleCardClick = (cartaClicada) => {
+        // 1 - Se a carta já estiver virada ou se o clique estiver desabilitado, não faz nada e IGNORE O CLIQUE
+        if (disabled || cartaClicada.isFlipped || cartaClicada.isMatched) {
+            return; // return sozinho significa "pare tudo, e saia da função imediatamente"
+        }
+
+        const tabuleiroAtualizado = cards.map((item) => {
+            if (item.id === cartaClicada.id) {
+                return { ...item, isFlipped: true }; // Vira a carta clicada
+            }
+            return item; // Deixa as outras cartas intocadas (sem mudanças)
+        });
+
+        setCards(tabuleiroAtualizado); // Atualiza o estado do tabuleiro com a carta virada
+
+        // 
+        setSelectedCards((anteriores) => [...anteriores, cartaClicada]); // Adiciona a carta clicada à lista de cartas selecionadas
+    }
+
+    // esse useEffect vigia as cartas selecionadas (selectedCards) e executa a lógica de comparação quando o usuário seleciona 2 cartas
+    useEffect(() => {
+        // Só executa a lógica de comparação se o usuário tiver selecionado 2 cartas
+        if (selectedCards.length === 2) {
+            setDisabled(true); // 1- bloqueia novos cliques pro jogador nao trapacear
+
+            const [carta1, carta2] = selectedCards; // pega as duas cartas da lista
+
+            // SE os valores das cartas forem iguais, é um acerto (match)!
+            if (carta1.value === carta2.value) {
+
+                setCards((tabuleiroAnterior) => {
+                    const novoTabuleiro = tabuleiroAnterior.map((carta) => {
+
+                        // Atualiza as duas cartas mp tabuleiro para "is matched = true" (combinação correta)
+                        if (carta.id === carta1.id || carta.id === carta2.id) {
+                            return { ...carta, isMatched: true }; // Marca a carta como combinada
+                        }
+                        return carta; // Deixa as outras cartas intocadas (sem mudanças)
+                    });
+
+                    // Aqui checa se todas as 18 cartas já foram combinadas (vencedor)
+                    const usuarioGanhou = novoTabuleiro.every(carta => carta.isMatched);
+
+                    if (usuarioGanhou) {
+                        onEndGame("win"); // para o relógio e avisa que ganhou
+                    }
+
+                    return novoTabuleiro;
+                })
+
+                resetTurno(); // Reseta o turno para o próximo par de cartas
+            } else {
+
+                // Se as cartas forem diferentes, espere 1 segundo e desvira
+                setTimeout(() => {
+                    setCards((tabuleiroAnterior) => {
+                        return tabuleiroAnterior.map((carta) => {
+
+                            // Desvira as duas cartas voltando ao estado inicial (isFlipped: false)
+                            if (carta.id === carta1.id || carta.id === carta2.id) {
+                                return { ...carta, isFlipped: false } // aqui é onde a carta é desvirada (volta a ser virada para baixo)
+                            }
+                            return carta; // Deixa as outras cartas intocadas (sem mudanças)
+                        })
+                    })
+                    resetTurno(); // Reseta o turno para o próximo par de cartas
+                }, 1000); // 1000ms = 1 segundo. Tempo de espera para o jogador ver as cartas antes de desvirar (1 segundo)
+            }
+
+        }
+
+    }, [selectedCards]); // O useEffect fica "vigiando" o array das selecionadas
+
+    const resetTurno = () => {
+        setSelectedCards([]); // Limpa as cartas selecionadas para o próximo turno
+        setDisabled(false); // Libera os cliques para o próximo turno
+    }
+
     return (
         <div className="w-full max-w-4xl mx-auto p-4 flex flex-col items-center">
 
@@ -75,16 +154,37 @@ export default function GameBoard({ onEndGame }) {
 
             {/* grid que se adapta sozinho (2 colunas no celular, 6 no computador) */}
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 w-full max-w-2xl">
+
                 {cards.map((carta) => (
                     <div
                         key={carta.id} // A chave única para cada carta (importante para o React) 
-                        className="aspect-square bg-orange-500 rounded-xl flex items-center justify-center text-2xl font-bold text-white shadow-md cursor-pointer hover:bg-orange-600 transition-all">
+                        onClick={() => handleCardClick(carta)} // Chama a função de clique passando a carta clicada
+                        className="aspect-square cursor-pointer perspective-[1000px]"
+                    >
 
-                        {/* Por enquanto, vamos exibir o valor direto só para testar se embaralhou! */}
-                        {carta.value}
+                        {/* 2: O Atuador (Sofre a rotação física)
+                        Se a carta estiver virada (isFlipped) OU combinada (isMatched), gira 180 graus no eixo Y */}
+                        <div
+                            className={`relative w-full h-full rounded-xl transition-transform duration-500 transform-3d ${carta.isFlipped || carta.isMatched ? "transform-[rotateY(180deg)]" : ""
+                                }`}
+                        >
+
+                            {/* 3A: Face da Frente (Carta Fechada - Cor Laranja)
+                            Fica visível por padrão. Esconde-se ao girar */}
+                            <div className="absolute inset-0 bg-orange-500 rounded-xl shadow-md border border-orange-400 backface-hidden flex items-center justify-center hover:bg-orange-600 transition-colors">
+                                <span className="text-white opacity-50 text-xl font-bold">?</span>
+                            </div>
+
+                            {/* 3B: Face de Trás (Carta Aberta - Cor Escura com a Letra)
+                            Já nasce invertida. Fica visível apenas quando o Atuador gira */}
+                            <div className="absolute inset-0 bg-slate-800 rounded-xl shadow-md border border-slate-700 text-2xl font-bold text-orange-500 flex items-center justify-center backface-hidden transform-[rotateY(180deg)]">
+                                {carta.value}
+                            </div>
+
+                        </div>
                     </div>
                 ))}
             </div>
         </div>
-    )
+    );
 }

@@ -28,9 +28,15 @@ export default function FormMailing({ onStart }) {
     return (
         <div className="bg-white p-8 rounded-2xl shadow-xl md:max-w-md max-w-xs w-full border border-slate-100 mx-auto mt-0">
             <h2 className="text-2xl font-bold mb-2 text-slate-800 text-center">Grupo Today</h2>
-            <p className="text-slate-500 text-sm text-center mb-6">
-                Preencha os dados abaixo para iniciar o desafio do Jogo da Memória!
-            </p>
+            <div className="text-slate-600 text-sm mb-6 bg-slate-50 p-2 rounded-xl border border-slate-100 space-y-2">
+                <p className="font-semibold text-slate-700 text-center text-base">Desafio do Jogo da Memória!</p>
+                <p className="text-xs text-slate-500 font-medium">
+                    O objetivo é encontrar todos os 9 pares de cartas correspondentes antes que o cronômetro chegue a zero.
+                </p>
+                <p className="text-xs text-slate-500 font-medium">
+                    Você terá exatamente 1 minuto (60s) para concluir. Preencha seus dados abaixo para liberar o tabuleiro!
+                </p>
+            </div>
 
             { /* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-4">
