@@ -13,6 +13,12 @@ Este projeto é uma aplicação web interativa de Jogo da Memória desenvolvida 
 
 ---
 
+## 🔗 Link do Projeto
+
+* **Aplicação em Produção (Vercel):** https://memory-game-mailing.vercel.app/
+
+---
+
 ## Lógica de Programação & Engenharia
 
 * **Algoritmo Fisher-Yates (Knuth Shuffle):** A inicialização do tabuleiro utiliza este algoritmo clássico para embaralhar as 18 cartas (9 pares) em tempo linear $O(n)$. Ele realiza trocas (*swaps*) diretas na memória, garantindo uma distribuição estatisticamente uniforme e perfeitamente aleatória, evitando soluções falhas comuns de mercado como o uso de `.sort(() => Math.random() - 0.5)`.
