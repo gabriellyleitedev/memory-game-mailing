@@ -29,7 +29,7 @@ function App() {
   // Permite reiniciar a partida do zero se o usuário quiser jogar novamente
   const handleResetGame = () => {
     setGameResult(null); // Limpa o resultado do jogo
-    setScreen("playing"); // Volta para a tela de cadastro
+    setScreen("playing"); // Volta para a tela do jogo
   }
 
   return (

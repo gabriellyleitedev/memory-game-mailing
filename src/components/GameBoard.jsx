@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function GameBoard({ onEndGame }) {
     // 1- Aqui guarda as 18 cartas do jogo (o array com os dados de cada carta)
@@ -12,6 +12,7 @@ export default function GameBoard({ onEndGame }) {
 
     // 4 - Guarda o tempo restante para o usuário jogar (inicia com 60 segundos)
     const [timeLeft, setTimeLeft] = useState(60);   // É O TIME QUE O USEEFFECT PRECISA VIGIAR
+    const timeoutRef = useRef(null);
 
 
     // ESSE useEffect controla o relógio regressivo (de 60 para 0 - timeLeft)
@@ -118,7 +119,7 @@ export default function GameBoard({ onEndGame }) {
             } else {
 
                 // Se as cartas forem diferentes, espere 1 segundo e desvira
-                setTimeout(() => {
+                timeoutRef.current = setTimeout(() => {
                     setCards((tabuleiroAnterior) => {
                         return tabuleiroAnterior.map((carta) => {
 
@@ -134,6 +135,10 @@ export default function GameBoard({ onEndGame }) {
             }
 
         }
+
+        return () => {
+            clearTimeout(timeoutRef.current);
+        };
 
     }, [selectedCards]); // O useEffect fica "vigiando" o array das selecionadas
 
